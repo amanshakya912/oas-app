@@ -1,39 +1,43 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import { Stack } from "expo-router";
+import '../global.css';
+import * as Font from 'expo-font';
+import { useEffect, useState } from "react";
+import Footer from "@/components/Footer";
+import { View } from "react-native";
+import Header from "@/components/Header";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
-  });
+  const [fontsLoaded, setFontsLoaded] = useState(false);
 
   useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
+    const loadFonts = async () => {
+      await Font.loadAsync({
+        'Lora': require('../assets/fonts/Lora-Regular.ttf'),
+        'Lora-Bold': require('../assets/fonts/Lora-Bold.ttf'),
+        'Lora-Medium': require('../assets/fonts/Lora-Medium.ttf'),
+        'Lora-SemiBold': require('../assets/fonts/Lora-SemiBold.ttf'),
+      });
+      setFontsLoaded(true);
+    };
 
-  if (!loaded) {
-    return null;
+    loadFonts();
+  }, []);
+
+  if (!fontsLoaded) {
+    return null; 
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+    <>
+      <View className="flex-1">
+        <Header/>
+          <Stack screenOptions={{headerShown: false}}> 
+            <Stack.Screen name="index"/>
+            <Stack.Screen name="signup"/>
+            <Stack.Screen name="signin"/>
+          </Stack>
+        <Footer/>
+      </View>
+    </>
+);
 }
