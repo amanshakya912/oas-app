@@ -1,36 +1,32 @@
 import { View, Text, FlatList } from "react-native";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Link, Route } from "expo-router";
+import { Link } from "expo-router";
+import { FooterData } from "@/types";
 
-type FooterData = {
-    id: string;
-    title: string;
-    iconName: keyof typeof Ionicons.glyphMap,
-    route: Route
-};
+
 
 const footerItems: FooterData[]  = [
     {
         id:'1',
-        title: 'Home',
+        title: 'Home\u00A0',
         iconName: 'home',
         route: '/'
     },
     {
         id:'2',
-        title: 'Browse',
+        title: 'Browse\u00A0\u00A0',
         iconName: 'search',
         route: '/'
     },
     {
         id:'3',
-        title: 'Create',
+        title: 'Create\u00A0',
         iconName: 'add-circle',
-        route: '/'
+        route: '/create-auction'
     },
     {
         id: '4',
-        title: 'Profile',
+        title: 'Profile\u00A0',
         iconName: 'person',
         route: '/'
     }

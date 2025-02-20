@@ -5,6 +5,34 @@ import { useEffect, useState } from "react";
 import Footer from "@/components/Footer";
 import { View } from "react-native";
 import Header from "@/components/Header";
+import Toast, { BaseToast, ToastProps } from 'react-native-toast-message';
+
+const toastConfig = {
+  success: (props: ToastProps) => {
+   return <BaseToast
+      {...props}
+      text1Style={{
+        color: '#ffffff',
+        fontSize: 14
+      }}
+      contentContainerStyle={{
+        backgroundColor: '#22c55e',
+      }}
+    />
+  },
+  error: (props: ToastProps) => {
+    return <BaseToast
+       {...props}
+       text1Style={{
+         color: '#ffffff',
+         fontSize: 14
+       }}
+       contentContainerStyle={{
+         backgroundColor: '#ef4444',
+       }}
+     />
+   }
+}
 
 export default function RootLayout() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -35,8 +63,10 @@ export default function RootLayout() {
             <Stack.Screen name="index"/>
             <Stack.Screen name="signup"/>
             <Stack.Screen name="signin"/>
+            <Stack.Screen name="create-auction"/>
           </Stack>
         <Footer/>
+        <Toast config={toastConfig}/>
       </View>
     </>
 );

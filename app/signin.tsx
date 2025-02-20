@@ -4,19 +4,24 @@ import { Link } from "expo-router";
 import { ScrollView } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import Ionicons from "@expo/vector-icons/Ionicons";
-type FormInputs = {
-  email: string;
-  password: string;
-};
+import Api from "@/utils/Api";
+import { SignInFormInputs } from "@/types";
+
 const SignIn = () => {
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormInputs>();
+  } = useForm<SignInFormInputs>();
   const [showPassword, setShowPassword] = useState(false);
 
-  const onSubmit = (data: FormInputs) => console.log(data);
+  const onSubmit = async(data: SignInFormInputs) => {
+    console.log(data)
+    // try {
+    // } catch(e: any){
+    //   console.log(e)
+    // }
+  };
 
   return (
     <View className="bg-black flex-1 gap-5">

@@ -2,17 +2,12 @@ import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
-import { Link } from "expo-router";
+import { Link, useNavigation } from "expo-router";
+import { SignUpFormInputs } from "@/types";
+import Api from "@/utils/Api";
+import * as SecureStore from 'expo-secure-store';
+import Toast from "react-native-toast-message";
 
-type FormInputs = {
-  firstName: string;
-  lastName: string;
-  userName: string;
-  phone: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-};
 
 const SignUp = () => {
   const {
@@ -20,12 +15,32 @@ const SignUp = () => {
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<FormInputs>();
+  } = useForm<SignUpFormInputs>();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const password = watch("password");
+  const navigation = useNavigation()
+  const onSubmit = async (data: SignUpFormInputs) => {
+    console.log(data)
+    try {
+      const res = await Api.signUp(data)
+      console.log('signup res',res)
+      Toast.show({
+        type: 'success',
+        text1: res.message
+      })
+      if (res?.token) {
+        await SecureStore.setItemAsync('token', res.token);
+        await SecureStore.setItemAsync('username', res.userName);
+        await SecureStore.setItemAsync('id', res.id);
+      }
+      // setTimeout(()=>{
+      //   navigation.navigate('index')
+      // }, 3000)
+    } catch (e: any) {
 
-  const onSubmit = (data: FormInputs) => console.log(data);
+    }
+  };
 
   return (
     <>
