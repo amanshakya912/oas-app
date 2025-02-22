@@ -5,9 +5,8 @@ import { useState } from "react";
 import { Link, useNavigation } from "expo-router";
 import { SignUpFormInputs } from "@/types";
 import Api from "@/utils/Api";
-import * as SecureStore from 'expo-secure-store';
 import Toast from "react-native-toast-message";
-
+import axios from "axios";
 
 const SignUp = () => {
   const {
@@ -19,26 +18,46 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const password = watch("password");
-  const navigation = useNavigation()
+  const navigation = useNavigation();
   const onSubmit = async (data: SignUpFormInputs) => {
-    console.log(data)
+    console.log(data);
+    const { confirmPassword, ...finalData } = data
+    console.log('fd', finalData)
     try {
-      const res = await Api.signUp(data)
-      console.log('signup res',res)
+      const res = await Api.signUp(finalData);
+      console.log("signup res", res);
       Toast.show({
-        type: 'success',
-        text1: res.message
-      })
-      if (res?.token) {
-        await SecureStore.setItemAsync('token', res.token);
-        await SecureStore.setItemAsync('username', res.userName);
-        await SecureStore.setItemAsync('id', res.id);
+        type: "success",
+        text1: res.message,
+      });
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
+          Toast.show({
+            type: "error",
+            text1: error.response.data.message,
+          });
+        } else if (error.response) {
+          Toast.show({
+            type: "error",
+            text1: `Error ${error.response.status}: ${error.response.statusText}`,
+          });
+        } else {
+          Toast.show({
+            type: "error",
+            text1: `Network error. Please try again.`,
+          });
+        }
+      } else {
+        Toast.show({
+          type: "error",
+          text1: `An unexpected error occurred. Please try again.`,
+        });
       }
-      // setTimeout(()=>{
-      //   navigation.navigate('index')
-      // }, 3000)
-    } catch (e: any) {
-
     }
   };
 

@@ -1,6 +1,6 @@
-const BASE_URL = "http://localhost:5000";
-const API_URL = "http://localhost:5000/api/";
-const IMAGE_URL = "http://localhost:5000/uploads/";
+const BASE_URL = "http://192.168.0.101:5000";
+const API_URL = "http://192.168.0.101:5000/api/";
+const IMAGE_URL = "http://192.168.0.101:5000/uploads/";
 
 // const BASE_URL = "https://online-auction-system-1.onrender.com";
 // const API_URL = "https://online-auction-system-1.onrender.com/api/";

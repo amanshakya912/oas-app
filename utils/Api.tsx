@@ -1,6 +1,7 @@
 import axios from "axios";
 import Helper from "./Helper";
 import { SignInFormInputs, SignUpFormInputs } from "@/types";
+import * as SecureStore from "expo-secure-store";
 
 axios.defaults.baseURL = Helper.API_URL
 
@@ -9,6 +10,7 @@ const signIn = async (data: SignInFormInputs) => {
         const res = await axios.post('/signin', data)
         return res?.data
     } catch (error) {
+        console.log('e', error)
         throw error   
     }
 }
@@ -17,13 +19,14 @@ const signUp = async (data: SignUpFormInputs) => {
         const res = await axios.post('/signup', data);
         return res?.data;
     } catch (error) {
+        console.log('e', error)
         throw error;
     }
 };
 
 const addProduct = async (details: FormData) => {
-    const token = localStorage.getItem('token');
-    const userid = localStorage.getItem('id');
+    const token = await SecureStore.getItemAsync("token");
+    console.log("da2", token);
     try {
         const res = await axios.post('/add-product', details, {
             headers: {
@@ -33,6 +36,7 @@ const addProduct = async (details: FormData) => {
         })
         return res?.data;
     } catch (e) {
+        console.log('e',e)
         throw e;
     }
 }
@@ -55,11 +59,12 @@ const deleteProduct = async (id: string) => {
     }
 }
 
-const addProductDetail = async (features: FormData) => {
+const addProductDetail = async (features: number[]) => {
     try {
         const res = await axios.post('/product-detail/add', features)
         return res?.data
     } catch(e) {
+        console.log('e',e)
         throw e;
     }
 }
@@ -116,6 +121,7 @@ const getUser = async(username: string) => {
         const res = await axios.get(`/user?userName=${username}`)
         return res?.data;
     } catch(e) {
+        console.log('er',e)
         throw e;
     }
 }

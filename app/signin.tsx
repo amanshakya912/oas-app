@@ -6,6 +6,9 @@ import { Controller, useForm } from "react-hook-form";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Api from "@/utils/Api";
 import { SignInFormInputs } from "@/types";
+import Toast from "react-native-toast-message";
+import axios from "axios";
+import * as SecureStore from "expo-secure-store";
 
 const SignIn = () => {
   const {
@@ -17,10 +20,47 @@ const SignIn = () => {
 
   const onSubmit = async(data: SignInFormInputs) => {
     console.log(data)
-    // try {
-    // } catch(e: any){
-    //   console.log(e)
-    // }
+    try {
+      const res = await Api.signIn(data);
+      console.log("signin res", res);
+      Toast.show({
+        type: "success",
+        text1: res.message,
+      });
+      if (res?.token) {
+        await SecureStore.setItemAsync("token", res.token);
+        await SecureStore.setItemAsync("username", res.userName);
+        await SecureStore.setItemAsync("id", res.id);
+      }
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
+          Toast.show({
+            type: "error",
+            text1: error.response.data.message,
+          });
+        } else if (error.response) {
+          Toast.show({
+            type: "error",
+            text1: `Error ${error.response.status}: ${error.response.statusText}`,
+          });
+        } else {
+          Toast.show({
+            type: "error",
+            text1: `Network error. Please try again.`,
+          });
+        }
+      } else {
+        Toast.show({
+          type: "error",
+          text1: `An unexpected error occurred. Please try again.`,
+        });
+      }
+    }
   };
 
   return (

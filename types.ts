@@ -44,6 +44,33 @@ export type SignUpFormInputs = {
     phone: string;
     email: string;
     password: string;
-    confirmPassword: string;
+    confirmPassword?: string;
   };
   
+export type User = {
+    createdAt: string
+    email: string
+    firstName: string
+    lastName: string
+    userName: string
+};
+
+export type Product = {
+    _id?: string
+    activeBidders?: [string]
+    auctionEndTime: string
+    auctionStartTime: string
+    bidIncrement?: number
+    buyNowPrice?: number
+    category?: string
+    currentBid?: string
+    description?: string
+    finalPrice?: number
+    images: [string]
+    name?: string
+    numberOfBids?: number
+    quantity?: string
+    slug?: string
+    startingPrice?: number
+    status?: string
+}

@@ -16,6 +16,11 @@ import * as ImagePicker from "expo-image-picker";
 import DateTimePicker, {
   DateTimePickerEvent,
 } from "@react-native-community/datetimepicker";
+import Api from "@/utils/Api";
+import Toast from "react-native-toast-message";
+import axios from "axios";
+import { ActivityIndicator } from "react-native";
+
 interface Props {
   value?: string;
   onChange: (date: string) => void;
@@ -58,6 +63,7 @@ const CreateAuction = () => {
     watch,
     setValue,
     trigger,
+    getValues,
     formState: { errors },
   } = useForm<CreateAuctionFormInputs>({
     defaultValues: {
@@ -78,14 +84,30 @@ const CreateAuction = () => {
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
-
+  const [loading, setLoading] = useState(false);
+  const [productDetail, setProductDetail] = useState();
+  const [productDetailId, setProductDetailId] = useState<string>();
+  const [priceRange, setPriceRange] = useState<number>();
+  const [product, setProduct] = useState();
   const nextStep = async () => {
-    const isValid = await trigger();
-    console.log("va", isValid);
-    if (isValid) {
-      setCurrentStep((prev) => prev + 1);
+    if (currentStep == 3) {
+      console.log("3", currentStep);
+      loading ? "" : setCurrentStep((prevCurrentStep) => prevCurrentStep + 1);
+    } else if (currentStep === labels.length - 1) {
+      onSubmit();
+      setCurrentStep((prevCurrentStep) => prevCurrentStep + 1);
+    } else {
+      const isValid = await trigger();
+      if (isValid) {
+        setCurrentStep((prevCurrentStep) => prevCurrentStep + 1);
+        console.log("cs", currentStep);
+
+        if (currentStep == 2) {
+          console.log("2", currentStep);
+          await handleSubmitForProductSpecifications();
+        }
+      }
     }
-    // setCurrentStep((prev) => prev + 1);
   };
 
   // Function to move to previous step
@@ -170,13 +192,132 @@ const CreateAuction = () => {
       }
     };
 
+  const onSubmit = () => {
+    const finalData = getValues();
+    console.log("Form completed!", finalData);
+    handleFormSubmit(finalData);
+  };
+  const uriToBlob = async (fileUri: string) => {
+    const response = await fetch(fileUri);
+    const blob = await response.blob();
+    return new File([blob], "mbl.png", { type: "image/png" }); // Convert to File
+  };
+
+  const handleSubmitForProductSpecifications = async () => {
+    setLoading(true);
+    // const productSpecs = [getValues('battery_power'),getValues('blue'),getValues('clock_speed'),getValues('dual_sim'),getValues('fc'),getValues('four_g'),getValues('int_memory'),getValues('m_dep'),getValues('mobile_wt'),getValues('n_cores'),getValues('pc'),getValues('px_height'),getValues('px_width'),getValues('ram'),getValues('sc_h'),getValues('sc_w'),getValues('talk_time'),getValues('three_g'),getValues('touch_screen'),getValues('wifi')]
+    const productSpecs = [
+      getValues("battery_power"),
+      getValues("blue"),
+      getValues("dual_sim"),
+      getValues("fc"),
+      getValues("int_memory"),
+      getValues("ram"),
+      getValues("wifi"),
+      getValues("pc"),
+      getValues("n_cores"),
+      getValues("px_height"),
+      getValues("px_width"),
+    ];
+    console.log(productSpecs);
+    const features = productSpecs.map((item) =>
+      typeof item === "string" ? parseFloat(item) : item
+    );
+    console.log("nm", features);
+    try {
+      const res = await Api.addProductDetail(features);
+      console.log(res);
+      setProductDetail(res.productDetail);
+      setProductDetailId(res.productDetail._id);
+      setPriceRange(res.productDetail.price_range);
+      setLoading(false);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleFormSubmit = async (data: CreateAuctionFormInputs) => {
+    console.log("data", data);
+    const formData = new FormData();
+
+    Object.entries({
+      category: data.category,
+      quantity: data.quantity,
+      auctionStartTime: data.auctionStartTime,
+      auctionEndTime: data.auctionEndTime,
+      name: data.name,
+      description: data.description,
+      startingPrice: data.startingPrice,
+      buyNowPrice: data.buyNowPrice,
+      bidIncrement: data.bidIncrement,
+      productDetailId: productDetailId ? productDetailId : "",
+    }).forEach(([key, value]) => {
+      if (typeof value === "number") {
+        formData.append(key, value.toString());
+      } else {
+        formData.append(key, value);
+      }
+    });
+    if (Array.isArray(data.images)) {
+      for (const fileUri of data.images) {
+        formData.append("images", {
+          uri: fileUri,
+          name: `image-${Date.now()}.jpg`,
+          type: "image/jpeg",
+        } as any);
+      }
+    }
+    
+
+    console.log("da", formData);
+    for (const [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+
+    try {
+      const res = await Api.addProduct(formData);
+      console.log("res", res);
+      setProduct(res.data);
+      Toast.show({ type: "success", text1: res.message });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
+          Toast.show({
+            type: "error",
+            text1: error.response.data.message,
+          });
+        } else if (error.response) {
+          Toast.show({
+            type: "error",
+            text1: `Error ${error.response.status}: ${error.response.statusText}`,
+          });
+        } else {
+          Toast.show({
+            type: "error",
+            text1: `Network error. Please try again.`,
+          });
+        }
+      } else {
+        console.log(error);
+        Toast.show({
+          type: "error",
+          text1: `An unexpected error occurred. Please try again.`,
+        });
+      }
+    }
+  };
+
   return (
     <View className="bg-black flex-1">
       <View className="bg-light-dark h-1/4 rounded-br-[100px] items-center justify-center">
         <Text className="text-white font-lora text-2xl">Create Auction</Text>
       </View>
       <ScrollView className="px-4 mt-5">
-        <View className="flex-1  bg-light-dark pt-5 rounded-3xl p-4">
+        <View className="flex-1  bg-light-dark rounded-3xl p-4">
           <StepIndicator
             customStyles={customStyles}
             currentPosition={currentStep}
@@ -763,10 +904,40 @@ const CreateAuction = () => {
               <Text className="font-lora text-center text-white text-xl">
                 Price Prediction
               </Text>
-              <Text className="text-white text-center font-lora mb-4 mt-2">
-                Please wait, your Product Specifications are being analyzed and
-                price range is being predicted!!
-              </Text>
+              {loading ? (
+                <>
+                  <Text className="text-white text-center font-lora mb-4 mt-2">
+                    Please wait, your Product Specifications are being analyzed
+                    and price range is being predicted!!
+                  </Text>
+                  <View className="py-4">
+                    <ActivityIndicator size="large" color="#A27B5C" />
+                  </View>
+                </>
+              ) : (
+                <>
+                  <Text className="text-white text-center font-lora mb-4 mt-2">
+                    Your price range has been predicted as, Rs.
+                    {(() => {
+                      switch (priceRange) {
+                        case 0:
+                          return "5000-15000";
+                        case 1:
+                          return "15000-25000";
+                        case 2:
+                          return "25000-50000";
+                        case 3:
+                          return "50000+";
+                        default:
+                          return "Invalid price range";
+                      }
+                    })()}
+                  </Text>
+                  <Text className="text-white text-center font-lora mb-4 mt-2">
+                    You can proceed to the next step!
+                  </Text>
+                </>
+              )}
             </View>
           )}
           {currentStep === 4 && (
@@ -1011,10 +1182,10 @@ const CreateAuction = () => {
                         />
                       )}
                       {errors.auctionEndTime && (
-                      <Text className="text-red-500 mt-2">
-                        {errors.auctionEndTime.message}
-                      </Text>
-                    )}
+                        <Text className="text-red-500 mt-2">
+                          {errors.auctionEndTime.message}
+                        </Text>
+                      )}
                     </View>
                   </>
                 )}
@@ -1032,7 +1203,7 @@ const CreateAuction = () => {
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
-                  onPress={nextStep}
+                  onPress={handleSubmit(onSubmit)}
                   className="px-6 py-2 text-white text-center bg-brown rounded-md"
                 >
                   <Text className="text-white">Submit</Text>
