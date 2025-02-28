@@ -96,9 +96,9 @@ const getProductDetailsById = async (id: string) => {
     }
 }
 
-const placeBid = async (productId: string, bidAmount:string) => {
-    const token = localStorage.getItem('token');
-    const userid = localStorage.getItem('id');
+const placeBid = async (productId: string, bidAmount:number) => {
+    const token = await SecureStore.getItemAsync('token');
+    const userid = await SecureStore.getItemAsync('id');
     try {
         const response = await axios.post('/product/placeBid', {
             productId,
@@ -145,8 +145,8 @@ const getProductByUser = async(id: string) => {
 }
 
 const editUser = async (data: string) => {
-    const token = localStorage.getItem('token');
-    const userid = localStorage.getItem('id');
+    const token = await SecureStore.getItemAsync('token');
+    const userid = await SecureStore.getItemAsync('id');
     try {
         const res = await axios.put('/user/edit', data, {
             headers: {
@@ -160,8 +160,8 @@ const editUser = async (data: string) => {
     }
 }
 const deleteUser = async () => {
-    const token = localStorage.getItem('token');
-    const userid = localStorage.getItem('id');
+    const token = await SecureStore.getItemAsync('token');
+    const userid = await SecureStore.getItemAsync('id');
     try {
         const res = await axios.delete('/user/delete', {
             headers: {
@@ -184,8 +184,8 @@ const handleAuctionEnd = async (prodId: string) => {
     }
 }
 const handleBuyNow = async (prodId: string) => {
-    const token = localStorage.getItem('token');
-    const userid = localStorage.getItem('id');
+    const token = await SecureStore.getItemAsync('token');
+    const userid = await SecureStore.getItemAsync('id');
     try {
         const res = await axios.post(`/buy-now/${prodId}`, {}, { 
             headers: {

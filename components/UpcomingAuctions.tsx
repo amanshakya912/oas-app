@@ -6,6 +6,8 @@ import Carousel from "react-native-reanimated-carousel";
 import { Image } from "expo-image";
 import Helper from "@/utils/Helper";
 import { useSharedValue } from "react-native-reanimated";
+import CountdownTimer from "./CountdownTimer";
+import { Link } from "expo-router";
 
 const UpcomingAuctions = () => {
   const progress = useSharedValue<number>(0);
@@ -13,6 +15,9 @@ const UpcomingAuctions = () => {
   const screenWidth = Dimensions.get("window").width;
   console.log("scre", screenWidth);
   const [products, setProducts] = useState<Product[]>([]);
+  const handleCountdownComplete = () => {
+    console.log("compete");
+  };
   useEffect(() => {
     const getProductData = async () => {
       try {
@@ -22,7 +27,7 @@ const UpcomingAuctions = () => {
           const startTime = new Date(product.auctionStartTime);
           return currentTime < startTime;
         });
-        console.log('u',upcomingProducts)
+        console.log("u", upcomingProducts);
         setProducts(upcomingProducts);
       } catch (e) {
         console.log("Error fetching products:", e);
@@ -38,43 +43,60 @@ const UpcomingAuctions = () => {
             <Carousel
               loop={true}
               width={screenWidth}
-              height={280}
+              height={480}
               snapEnabled={true}
               pagingEnabled={true}
               data={products}
               mode="parallax"
               onSnapToItem={(index) => console.log("current index:", index)}
               renderItem={({ item }) => (
-                <View
-                  className="bg-brown border-0 rounded-2xl overflow-hidden group h-full justify-between items-center"
-                  key={item._id}
+                <Link
+                  href={{
+                    pathname: "/[slug]",
+                    params: {
+                      slug: item.slug ? item.slug : "",
+                    },
+                  }}
                 >
-                  {item?.images?.length > 0 && (
-                    <Image
-                      source={{ uri: Helper.BASE_URL + item.images[0] }}
-                      style={{
-                        width: "80%",
-                        height: "80%",
-                      }}
-                      className="flex-1"
-                    />
-                  )}
-                  <View className="bg-light-dark w-full px-5 py-3 flex-row justify-between items-center">
-                    <View>
-                      <Text className="text-white">{item.name}</Text>
-                      <Text className="text-white">
-                        {item.status == "Sold"
-                          ? `Sold At: Rs. ${item.finalPrice}`
-                          : "Unsold"}
-                      </Text>
-                    </View>
-                    <View>
-                      <Text className="text-white">
-                        No. of Bids: {item.activeBidders?.length}
-                      </Text>
+                  <View
+                    className="bg-brown border-0 rounded-2xl overflow-hidden group h-full w-full justify-between items-center"
+                    key={item._id}
+                  >
+                    {item?.images?.length > 0 && (
+                      <Image
+                        source={{ uri: Helper.BASE_URL + item.images[0] }}
+                        style={{
+                          width: "80%",
+                          height: "80%",
+                        }}
+                        className="flex-1"
+                      />
+                    )}
+                    <View className="absolute bottom-0">
+                      <View>
+                        <View className="bg-light-dark ml-5 p-2 mb-5 rounded-3xl flex-row items-center justify-center gap-5 w-1/2">
+                          <CountdownTimer
+                            countdownDate={new Date(item.auctionStartTime)}
+                            onComplete={handleCountdownComplete}
+                          />
+                        </View>
+                      </View>
+                      <View className="bg-light-dark w-full px-5 py-3 flex-row justify-between items-center">
+                        <View>
+                          <Text className="text-white">{item.name}</Text>
+                          <Text className="text-white">
+                            Current Bid: Rs. {item.currentBid}
+                          </Text>
+                        </View>
+                        <View>
+                          <Text className="text-white">
+                            No. of Bids: {item.activeBidders?.length}
+                          </Text>
+                        </View>
+                      </View>
                     </View>
                   </View>
-                </View>
+                </Link>
               )}
             />
           </>

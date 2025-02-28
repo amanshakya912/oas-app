@@ -6,6 +6,7 @@ import Carousel from "react-native-reanimated-carousel";
 import { Image } from "expo-image";
 import Helper from "@/utils/Helper";
 import { useSharedValue } from "react-native-reanimated";
+import { Link } from "expo-router";
 
 const RecentAuctions = () => {
   const progress = useSharedValue<number>(0);
@@ -51,36 +52,45 @@ const RecentAuctions = () => {
               mode="parallax"
               onSnapToItem={(index) => console.log("current index:", index)}
               renderItem={({ item }) => (
-                <View
-                  className="bg-brown border-0 rounded-2xl overflow-hidden group h-full justify-between items-center"
-                  key={item._id}
+                <Link
+                  href={{
+                    pathname: "/[slug]",
+                    params: {
+                      slug: item.slug ? item.slug : "",
+                    },
+                  }}
                 >
-                  {item?.images?.length > 0 && (
-                    <Image
-                      source={{ uri: Helper.BASE_URL + item.images[0] }}
-                      style={{
-                        width: "80%",
-                        height: "80%",
-                      }}
-                      className="flex-1"
-                    />
-                  )}
-                  <View className="bg-light-dark w-full px-5 py-3 flex-row justify-between items-center">
-                    <View>
-                      <Text className="text-white">{item.name}</Text>
-                      <Text className="text-white">
-                        {item.status == "Sold"
-                          ? `Sold At: Rs. ${item.finalPrice}`
-                          : "Unsold"}
-                      </Text>
-                    </View>
-                    <View>
-                      <Text className="text-white">
-                        No. of Bids: {item.activeBidders?.length}
-                      </Text>
+                  <View
+                    className="bg-brown border-0 rounded-2xl overflow-hidden group h-full justify-between items-center"
+                    key={item._id}
+                  >
+                    {item?.images?.length > 0 && (
+                      <Image
+                        source={{ uri: Helper.BASE_URL + item.images[0] }}
+                        style={{
+                          width: "80%",
+                          height: "80%",
+                        }}
+                        className="flex-1"
+                      />
+                    )}
+                    <View className="bg-light-dark w-full px-5 py-3 flex-row justify-between items-center">
+                      <View>
+                        <Text className="text-white">{item.name}</Text>
+                        <Text className="text-white">
+                          {item.status == "Sold"
+                            ? `Sold At: Rs. ${item.finalPrice}`
+                            : "Unsold"}
+                        </Text>
+                      </View>
+                      <View>
+                        <Text className="text-white">
+                          No. of Bids: {item.activeBidders?.length}
+                        </Text>
+                      </View>
                     </View>
                   </View>
-                </View>
+                </Link>
               )}
             />
           </>

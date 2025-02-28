@@ -63,14 +63,29 @@ export type Product = {
     bidIncrement?: number
     buyNowPrice?: number
     category?: string
-    currentBid?: string
+    currentBid?: number
     description?: string
     finalPrice?: number
     images: [string]
     name?: string
     numberOfBids?: number
-    quantity?: string
+    quantity?: number
     slug?: string
     startingPrice?: number
     status?: string
+}
+
+export type ProductSpecs = {
+    battery_power: number;
+    blue: number;
+    dual_sim: number;
+    fc: number;
+    int_memory: number;
+    ram:number;
+    wifi: number
+    pc: number
+    n_cores: number
+    px_height: number
+    px_width: number
+    price_range: number
 }
