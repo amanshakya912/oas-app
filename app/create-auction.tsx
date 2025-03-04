@@ -13,9 +13,7 @@ import { Controller, useForm } from "react-hook-form";
 import ModalSelector from "react-native-modal-selector";
 import { CreateAuctionFormInputs } from "@/types";
 import * as ImagePicker from "expo-image-picker";
-import DateTimePicker, {
-  DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import Api from "@/utils/Api";
 import Toast from "react-native-toast-message";
 import axios from "axios";
@@ -151,7 +149,7 @@ const CreateAuction = () => {
 
   const handleDateChange =
     (field: "auctionStartTime" | "auctionEndTime") =>
-    (event: DateTimePickerEvent, selectedDate?: Date) => {
+    (selectedDate?: Date) => {
       // field === 'auctionEndTime' ? (
       //   setShowEndDatePicker(true),
       //   setShowStartDatePicker(false)
@@ -174,7 +172,7 @@ const CreateAuction = () => {
   // Handle Time Change
   const handleTimeChange =
     (field: "auctionStartTime" | "auctionEndTime") =>
-    (event: DateTimePickerEvent, selectedTime?: Date) => {
+    ( selectedTime?: Date) => {
       // field === 'auctionEndTime' ? (
       //   setShowEndTimePicker(true),
       //   setShowStartTimePicker(false)

@@ -16,7 +16,7 @@ export default function Index() {
           Current Auctions
         </Text>
         <CurrentAuctions />
-        <Text className="text-white font-lora text-2xl text-center">
+        <Text className="text-white font-lora text-2xl text-center pt-8">
           Upcoming Auctions
         </Text>
         <UpcomingAuctions />
